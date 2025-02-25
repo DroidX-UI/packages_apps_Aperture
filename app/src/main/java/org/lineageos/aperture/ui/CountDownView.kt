@@ -22,7 +22,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import org.lineageos.aperture.R
-import org.lineageos.aperture.ext.*
+import org.lineageos.aperture.ext.smoothRotate
 import org.lineageos.aperture.models.Rotation
 import org.lineageos.aperture.viewmodels.CameraViewModel
 
