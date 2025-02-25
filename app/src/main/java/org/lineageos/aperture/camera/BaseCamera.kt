@@ -29,12 +29,12 @@ abstract class BaseCamera(cameraInfo: CameraInfo) {
     /**
      * The [Camera2CameraInfo] of this camera.
      */
-    protected val camera2CameraInfo = Camera2CameraInfo.from(cameraInfo)
+    protected val camera2CameraInfo: Camera2CameraInfo = Camera2CameraInfo.from(cameraInfo)
 
     /**
      * Camera2's camera ID.
      */
-    val cameraId = camera2CameraInfo.cameraId
+    val cameraId: String = camera2CameraInfo.cameraId
 
     /**
      * The [CameraFacing] of this camera.

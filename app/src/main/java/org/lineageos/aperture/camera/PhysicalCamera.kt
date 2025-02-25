@@ -14,7 +14,7 @@ import androidx.camera.core.CameraSelector
 class PhysicalCamera(
     cameraInfo: CameraInfo
 ) : BaseCamera(cameraInfo) {
-    override val cameraSelector = CameraSelector.Builder()
+    override val cameraSelector: CameraSelector = CameraSelector.Builder()
         .setPhysicalCameraId(cameraId)
         .build()
 }
