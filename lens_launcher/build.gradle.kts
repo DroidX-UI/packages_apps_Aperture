@@ -4,13 +4,13 @@
  */
 
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
-    compileSdk = 34
     namespace = "com.google.android.apps.googlecamera.fishfood"
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.google.android.apps.googlecamera.fishfood"
@@ -21,7 +21,7 @@ android {
     }
 
     buildTypes {
-        getByName("release") {
+        release {
             // Enables code shrinking, obfuscation, and optimization.
             isMinifyEnabled = true
 
