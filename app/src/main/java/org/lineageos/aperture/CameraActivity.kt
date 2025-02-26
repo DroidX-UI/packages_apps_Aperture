@@ -737,9 +737,11 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         }
 
         // Observe focus state
-        cameraController.tapToFocusState.observe(this) {
-            when (it) {
+        cameraController.tapToFocusInfoState.observe(this) {
+            when (it.focusState) {
                 CameraController.TAP_TO_FOCUS_STARTED -> {
+                    viewFinderFocus.x = it.tapPoint!!.x - (viewFinderFocus.width / 2)
+                    viewFinderFocus.y = it.tapPoint!!.y - (viewFinderFocus.height / 2)
                     viewFinderFocus.isVisible = true
                     handler.removeMessages(MSG_HIDE_FOCUS_RING)
                     ValueAnimator.ofInt(0.px, 8.px).apply {
@@ -769,19 +771,12 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
             }
             return@setOnTouchListener gestureDetector.onTouchEvent(event)
         }
-        viewFinder.setOnClickListener { view ->
+        viewFinder.setOnClickListener {
             // Reset exposure level to 0 EV
             cameraController.cameraControl?.setExposureCompensationIndex(0)
             exposureLevel.progress = 0.5f
 
             exposureLevel.isVisible = true
-            viewFinderTouchEvent?.let {
-                viewFinderFocus.x = it.x - (viewFinderFocus.width / 2)
-                viewFinderFocus.y = it.y - (viewFinderFocus.height / 2)
-            } ?: run {
-                viewFinderFocus.x = (view.width - viewFinderFocus.width) / 2f
-                viewFinderFocus.y = (view.height - viewFinderFocus.height) / 2f
-            }
             handler.removeMessages(MSG_HIDE_EXPOSURE_SLIDER)
             handler.sendMessageDelayed(handler.obtainMessage(MSG_HIDE_EXPOSURE_SLIDER), 2000)
 
