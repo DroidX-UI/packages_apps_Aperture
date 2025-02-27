@@ -210,7 +210,7 @@ import androidx.camera.core.CameraState as CameraXCameraState
 @androidx.annotation.OptIn(ExperimentalCamera2Interop::class, ExperimentalZeroShutterLag::class)
 open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
     // View models
-    private val model: CameraViewModel by viewModels()
+    private val viewModel by viewModels<CameraViewModel>()
 
     // Views
     private val aspectRatioButton by lazy { findViewById<Button>(R.id.aspectRatioButton) }
@@ -262,23 +262,23 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
     }
     private val permissionsUtils by lazy { PermissionsUtils(this) }
 
-    private var camera by nonNullablePropertyDelegate { model.camera }
-    private var cameraMode by nonNullablePropertyDelegate { model.cameraMode }
-    private var singleCaptureMode by nonNullablePropertyDelegate { model.inSingleCaptureMode }
-    private var cameraState by nonNullablePropertyDelegate { model.cameraState }
-    private var screenRotation by nonNullablePropertyDelegate { model.screenRotation }
-    private var gridMode by nonNullablePropertyDelegate { model.gridMode }
-    private var flashMode by nonNullablePropertyDelegate { model.flashMode }
-    private var timerMode by nonNullablePropertyDelegate { model.timerMode }
-    private var photoCaptureMode by nonNullablePropertyDelegate { model.photoCaptureMode }
-    private var photoAspectRatio by nonNullablePropertyDelegate { model.photoAspectRatio }
-    private var photoEffect by nonNullablePropertyDelegate { model.photoEffect }
-    private var videoQuality by nonNullablePropertyDelegate { model.videoQuality }
-    private var videoFrameRate by nullablePropertyDelegate { model.videoFrameRate }
-    private var videoDynamicRange by nonNullablePropertyDelegate { model.videoDynamicRange }
-    private var videoMicMode by nonNullablePropertyDelegate { model.videoMicMode }
-    private var videoRecording by nullablePropertyDelegate { model.videoRecording }
-    private var videoDuration by nonNullablePropertyDelegate { model.videoRecordingDuration }
+    private var camera by nonNullablePropertyDelegate { viewModel.camera }
+    private var cameraMode by nonNullablePropertyDelegate { viewModel.cameraMode }
+    private var singleCaptureMode by nonNullablePropertyDelegate { viewModel.inSingleCaptureMode }
+    private var cameraState by nonNullablePropertyDelegate { viewModel.cameraState }
+    private var screenRotation by nonNullablePropertyDelegate { viewModel.screenRotation }
+    private var gridMode by nonNullablePropertyDelegate { viewModel.gridMode }
+    private var flashMode by nonNullablePropertyDelegate { viewModel.flashMode }
+    private var timerMode by nonNullablePropertyDelegate { viewModel.timerMode }
+    private var photoCaptureMode by nonNullablePropertyDelegate { viewModel.photoCaptureMode }
+    private var photoAspectRatio by nonNullablePropertyDelegate { viewModel.photoAspectRatio }
+    private var photoEffect by nonNullablePropertyDelegate { viewModel.photoEffect }
+    private var videoQuality by nonNullablePropertyDelegate { viewModel.videoQuality }
+    private var videoFrameRate by nullablePropertyDelegate { viewModel.videoFrameRate }
+    private var videoDynamicRange by nonNullablePropertyDelegate { viewModel.videoDynamicRange }
+    private var videoMicMode by nonNullablePropertyDelegate { viewModel.videoMicMode }
+    private var videoRecording by nullablePropertyDelegate { viewModel.videoRecording }
+    private var videoDuration by nonNullablePropertyDelegate { viewModel.videoRecordingDuration }
 
     private lateinit var initialCameraFacing: CameraFacing
 
@@ -435,7 +435,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
     private val permissionsGatedCallbackOnStart = PermissionsGatedCallback(this) {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                model.capturedMedia.collectLatest {
+                viewModel.capturedMedia.collectLatest {
                     updateGalleryButton(it.firstOrNull(), false)
                 }
             }
@@ -637,11 +637,11 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         initialCameraFacing = sharedPreferences.lastCameraFacing
 
         // Pass the view model to the views
-        cameraModeSelectorLayout.cameraViewModel = model
-        capturePreviewLayout.cameraViewModel = model
-        countDownView.cameraViewModel = model
-        infoChipView.cameraViewModel = model
-        lensSelectorLayout.cameraViewModel = model
+        cameraModeSelectorLayout.cameraViewModel = viewModel
+        capturePreviewLayout.cameraViewModel = viewModel
+        countDownView.cameraViewModel = viewModel
+        infoChipView.cameraViewModel = viewModel
+        lensSelectorLayout.cameraViewModel = viewModel
 
         // Restore settings from shared preferences
         gridMode = sharedPreferences.lastGridMode
@@ -667,7 +667,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
             }
         }
 
-        if (cameraMode == CameraMode.VIDEO && !model.videoRecordingAvailable()) {
+        if (cameraMode == CameraMode.VIDEO && !viewModel.videoRecordingAvailable()) {
             // If an app asked for a video we have to bail out
             if (singleCaptureMode) {
                 Toast.makeText(
@@ -681,7 +681,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         }
 
         // Select a camera
-        camera = model.getCameraOfFacingOrFirstAvailable(
+        camera = viewModel.getCameraOfFacingOrFirstAvailable(
             initialCameraFacing, cameraMode
         ) ?: run {
             noCamera()
@@ -931,12 +931,12 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         previewBlurView.previewView = viewFinder
 
         // Observe camera
-        model.camera.observe(this) {
+        viewModel.camera.observe(this) {
             updateSecondaryTopBarButtons()
         }
 
         // Observe camera mode
-        model.cameraMode.observe(this) {
+        viewModel.cameraMode.observe(this) {
             val cameraMode = it ?: return@observe
 
             // Update secondary top bar buttons
@@ -961,7 +961,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         }
 
         // Observe single capture mode
-        model.inSingleCaptureMode.observe(this) {
+        viewModel.inSingleCaptureMode.observe(this) {
             val inSingleCaptureMode = it ?: return@observe
 
             // Update primary bar buttons
@@ -969,7 +969,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         }
 
         // Observe camera state
-        model.cameraState.observe(this) {
+        viewModel.cameraState.observe(this) {
             val cameraState = it ?: return@observe
 
             // Update secondary bar buttons
@@ -990,10 +990,10 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         }
 
         // Observe screen rotation
-        model.screenRotation.observe(this) { rotateViews(it) }
+        viewModel.screenRotation.observe(this) { rotateViews(it) }
 
         // Observe flash mode
-        model.flashMode.observe(this) {
+        viewModel.flashMode.observe(this) {
             val flashMode = it ?: return@observe
 
             // Update secondary bar buttons
@@ -1012,7 +1012,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         }
 
         // Observe grid mode
-        model.gridMode.observe(this) {
+        viewModel.gridMode.observe(this) {
             val gridMode = it ?: return@observe
 
             // Update secondary bar buttons
@@ -1038,7 +1038,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         }
 
         // Observe timer mode
-        model.timerMode.observe(this) {
+        viewModel.timerMode.observe(this) {
             val timerMode = it ?: return@observe
 
             // Update secondary bar buttons
@@ -1062,13 +1062,13 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         }
 
         // Observe photo capture mode
-        model.photoCaptureMode.observe(this) {
+        viewModel.photoCaptureMode.observe(this) {
             // Update secondary bar buttons
             updateSecondaryTopBarButtons()
         }
 
         // Observe photo aspect ratio
-        model.photoAspectRatio.observe(this) {
+        viewModel.photoAspectRatio.observe(this) {
             val photoAspectRatio = it ?: return@observe
 
             // Update secondary bar buttons
@@ -1082,7 +1082,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         }
 
         // Observe photo effect
-        model.photoEffect.observe(this) {
+        viewModel.photoEffect.observe(this) {
             val photoEffect = it ?: return@observe
 
             // Update secondary bar buttons
@@ -1114,7 +1114,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         }
 
         // Observe video quality
-        model.videoQuality.observe(this) {
+        viewModel.videoQuality.observe(this) {
             val videoQuality = it ?: return@observe
 
             // Update secondary bar buttons
@@ -1144,7 +1144,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         }
 
         // Observe video frame rate
-        model.videoFrameRate.observe(this) {
+        viewModel.videoFrameRate.observe(this) {
             val videoFrameRate = it
 
             // Update secondary bar buttons
@@ -1153,7 +1153,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
             } ?: resources.getString(R.string.video_framerate_auto)
         }
 
-        model.videoDynamicRange.observe(this) {
+        viewModel.videoDynamicRange.observe(this) {
             val videoDynamicRange = it
 
             // Update secondary bar buttons
@@ -1164,7 +1164,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         }
 
         // Observe video mic mode
-        model.videoMicMode.observe(this) {
+        viewModel.videoMicMode.observe(this) {
             val videoMicMode = it ?: return@observe
 
             // Update secondary bar buttons
@@ -1180,7 +1180,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         }
 
         // Observe video recording
-        model.videoRecording.observe(this) {
+        viewModel.videoRecording.observe(this) {
             // Update secondary bar buttons
             updateSecondaryTopBarButtons()
         }
@@ -1235,7 +1235,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
     }
 
     override fun onDestroy() {
-        model.shutdown()
+        viewModel.shutdown()
 
         super.onDestroy()
     }
@@ -1394,7 +1394,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
             videoRecording = cameraController.startRecording(
                 outputOptions,
                 videoAudioConfig,
-                model.cameraExecutor
+                viewModel.cameraExecutor
             ) {
                 when (it) {
                     is VideoRecordEvent.Start -> runOnUiThread {
@@ -1461,7 +1461,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
 
         // Get the desired camera
         camera = when (cameraMode) {
-            CameraMode.QR -> model.getCameraOfFacingOrFirstAvailable(
+            CameraMode.QR -> viewModel.getCameraOfFacingOrFirstAvailable(
                 CameraFacing.BACK, cameraMode
             )
 
@@ -1474,7 +1474,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         // If the current camera doesn't support the selected camera mode
         // pick a different one, giving priority to camera facing
         if (!camera.supportsCameraMode(cameraMode)) {
-            camera = model.getCameraOfFacingOrFirstAvailable(
+            camera = viewModel.getCameraOfFacingOrFirstAvailable(
                 camera.cameraFacing, cameraMode
             ) ?: run {
                 noCamera()
@@ -1495,7 +1495,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         // Initialize the use case we want and set its properties
         val cameraUseCases = when (cameraMode) {
             CameraMode.QR -> {
-                cameraController.setImageAnalysisAnalyzer(model.cameraExecutor, imageAnalyzer)
+                cameraController.setImageAnalysisAnalyzer(viewModel.cameraExecutor, imageAnalyzer)
                 CameraController.IMAGE_ANALYSIS
             }
 
@@ -1507,7 +1507,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
                         )
                     )
                     .setAllowedResolutionMode(
-                        if (model.overlayConfiguration.enableHighResolution) {
+                        if (viewModel.overlayConfiguration.enableHighResolution) {
                             ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
                         } else {
                             ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION
@@ -1559,7 +1559,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
             cameraMode == CameraMode.PHOTO &&
             photoCaptureMode != ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG
         ) {
-            model.extensionsManager.getExtensionEnabledCameraSelector(
+            viewModel.extensionsManager.getExtensionEnabledCameraSelector(
                 camera.cameraSelector, photoEffect
             )
         } else {
@@ -1782,7 +1782,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
 
         // Update lens selector
         lensSelectorLayout.setCamera(
-            camera, model.getCameras(cameraMode, camera.cameraFacing)
+            camera, viewModel.getCameras(cameraMode, camera.cameraFacing)
         )
     }
 
@@ -1808,7 +1808,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
             }
 
             CameraMode.VIDEO -> {
-                if (!model.videoRecordingAvailable()) {
+                if (!viewModel.videoRecordingAvailable()) {
                     Snackbar.make(
                         cameraModeSelectorLayout,
                         R.string.camcorder_unsupported_toast,
@@ -1852,7 +1852,7 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
 
         (flipCameraButton.drawable as AnimatedVectorDrawable).start()
 
-        camera = model.getNextCamera(camera, cameraMode) ?: run {
+        camera = viewModel.getNextCamera(camera, cameraMode) ?: run {
             noCamera()
             return
         }
@@ -1868,12 +1868,12 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
      */
     private fun updateSecondaryTopBarButtons() {
         runOnUiThread {
-            val camera = model.camera.value ?: return@runOnUiThread
-            val cameraMode = model.cameraMode.value ?: return@runOnUiThread
-            val cameraState = model.cameraState.value ?: return@runOnUiThread
-            val photoCaptureMode = model.photoCaptureMode.value ?: return@runOnUiThread
-            val videoQuality = model.videoQuality.value ?: return@runOnUiThread
-            val videoRecording = model.videoRecording.value
+            val camera = viewModel.camera.value ?: return@runOnUiThread
+            val cameraMode = viewModel.cameraMode.value ?: return@runOnUiThread
+            val cameraState = viewModel.cameraState.value ?: return@runOnUiThread
+            val photoCaptureMode = viewModel.photoCaptureMode.value ?: return@runOnUiThread
+            val videoQuality = viewModel.videoQuality.value ?: return@runOnUiThread
+            val videoRecording = viewModel.videoRecording.value
 
             val supportedVideoQualities = camera.supportedVideoQualities
             val videoQualityInfo = supportedVideoQualities[videoQuality]
@@ -1910,8 +1910,8 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
      */
     private fun updatePrimaryBarButtons() {
         runOnUiThread {
-            val cameraMode = model.cameraMode.value ?: return@runOnUiThread
-            val cameraState = model.cameraState.value ?: return@runOnUiThread
+            val cameraMode = viewModel.cameraMode.value ?: return@runOnUiThread
+            val cameraState = viewModel.cameraState.value ?: return@runOnUiThread
 
             flipCameraButton.isInvisible =
                 cameraMode == CameraMode.QR || cameraState.isRecordingVideo
