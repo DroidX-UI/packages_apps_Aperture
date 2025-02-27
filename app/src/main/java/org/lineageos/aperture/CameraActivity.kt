@@ -1234,12 +1234,6 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
         super.onPause()
     }
 
-    override fun onDestroy() {
-        viewModel.shutdown()
-
-        super.onDestroy()
-    }
-
     override fun onKeyDown(keyCode: Int, event: KeyEvent?) = when (capturePreviewLayout.isVisible) {
         true -> super.onKeyDown(keyCode, event)
         false -> handleHardwareKeyDown(keyCode, event) ?: super.onKeyDown(keyCode, event)

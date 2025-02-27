@@ -259,6 +259,10 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
      */
     val videoRecordingDuration = MutableLiveData<Long>()
 
+    override fun onCleared() {
+        cameraExecutor.shutdown()
+    }
+
     fun getAdditionalVideoFrameRates(cameraId: String, quality: Quality) =
         overlayConfiguration.additionalVideoConfigurations[cameraId]?.get(quality) ?: setOf()
 
@@ -341,10 +345,6 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun videoRecordingAvailable() = availableCamerasSupportingVideoRecording.isNotEmpty()
-
-    fun shutdown() {
-        cameraExecutor.shutdown()
-    }
 
     private fun prepareDeviceCamerasList(cameraFacing: CameraFacing): List<Camera> {
         val facingCameras = internalCameras.filter {
